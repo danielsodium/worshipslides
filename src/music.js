@@ -96,31 +96,34 @@ async function fetchLyrics(url) {
 function parseLyrics(t) {
     const doc = new DOMParser({ errorHandler: {warning:()=>{}, error:()=>{}} }).parseFromString(t);
     const nodes = select('//span[@class="lyrics__content__ok"]', doc);        
-    lyrics = "";
-
-    var title = select('//h1', doc)[0].lastChild.data; 
-    lyrics+=(title+"\n");
+    data = {
+        title: select('//h1', doc)[0].lastChild.data,
+        artist: select('//h2', doc)[0].firstChild.firstChild.firstChild.data,
+        lyrics: ""
+    }
 
     for(let j = 0; j < nodes.length; j++) {
         if(typeof nodes[j].firstChild !== 'undefined' && typeof nodes[j].firstChild.data !== 'undefined') {
-            lyrics += (nodes[j].firstChild.data);
+            data.lyrics += (nodes[j].firstChild.data);
         }
     }
 
-    return lyrics;
+    return data;
 }
 
 
 const getLyrics = async function(query, type) {
     var a = await fetchURLs(query);
-    var listed = await fetchLyrics(a);
+    var data = await fetchLyrics(a);
+    listed = data.lyrics;
     listed = listed.split("\n");
     listed = listed.filter(item => item);
+    listed.unshift(data.title+"\n"+data.artist);
     total = [];
 
     // Adding multiple lyrics on one line if they are short
     for (var i = 0; i < listed.length; i++) {
-        if (i+1 < listed.length && listed[i+1].length < 30 && listed[i].length < 30) {
+        if (i != 0 && i+1 < listed.length && listed[i+1].length < 30 && listed[i].length < 30) {
             total.push({"$slide":type, "lyrics":listed[i].toUpperCase().replace(",", "\n").trim()
                         + ("\n"+listed[i+1].toUpperCase().replace(",", "\n").trim())});
             i++;

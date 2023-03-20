@@ -24,6 +24,7 @@ async function downloadFile(fileUrl, outputLocationPath) {
       });
       writer.on('close', () => {
         if (!error) {
+          console.log("Process finished.");
           resolve(true);
         }
         //no need to call the reject here, as it will have been called in the
@@ -36,7 +37,7 @@ async function downloadFile(fileUrl, outputLocationPath) {
 function saveFile(jsoned) {
   var data = new FormData();
   data.append('data', JSON.stringify(jsoned));
-  data.append('doc', fs.createReadStream('./../template.pptx'), { contentType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' });
+  data.append('doc', fs.createReadStream('./template.pptx'), { contentType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' });
   data.append('style.css', "/**/", { contentType: 'text/plain' });
 
   var config = {
@@ -48,10 +49,12 @@ function saveFile(jsoned) {
     data: data
   };
 
+  console.log("Sending template and lyrics to server...");
+
   axios(config)
     .then(function (response) {
-      downloadFile('https://docxapi.javascript-ninja.fr/api/v1/last', "./../output.pptx");
-      console.log("done!");
+      console.log("Downloading file...");
+      downloadFile('https://docxapi.javascript-ninja.fr/api/v1/last', "./output.pptx");
     })
     .catch(function (error) {
       console.log(error);
