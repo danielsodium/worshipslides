@@ -112,24 +112,33 @@ function parseLyrics(t) {
 }
 
 
-const getLyrics = async function(query, type) {
+const getLyrics = async function(query, type, capitalize) {
     var a = await fetchURLs(query);
     var data = await fetchLyrics(a);
     listed = data.lyrics;
     listed = listed.split("\n");
     listed = listed.filter(item => item);
     listed.unshift(data.title+"\n"+data.artist);
+
+    if (capitalize) type.substring(0,type.length-1);
+    type = parseInt(type);
+
     total = [];
 
     // Adding multiple lyrics on one line if they are short
     for (var i = 0; i < listed.length; i++) {
+
+        line = capitalize ? listed[i].toUpperCase().replace(",", "\n").trim() 
+                          : listed[i].replace(",", "\n").trim();
+        nextLine = capitalize ? listed[i+1].toUpperCase().replace(",", "\n").trim() 
+                              : listed[i+1].replace(",", "\n").trim();
+
         if (i != 0 && i+1 < listed.length && listed[i+1].length < 30 && listed[i].length < 30) {
-            total.push({"$slide":type, "lyrics":listed[i].toUpperCase().replace(",", "\n").trim()
-                        + ("\n"+listed[i+1].toUpperCase().replace(",", "\n").trim())});
+            total.push({ "$slide" : type, "lyrics": line + "\n"+ nextLine });
             i++;
         }
         else {
-            total.push({"$slide":type,"lyrics":listed[i].toUpperCase().replace(",", "\n").trim()});
+            total.push({"$slide":type,"lyrics":line});
         }
     }
     return total;

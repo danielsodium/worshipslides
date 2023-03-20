@@ -13,7 +13,7 @@ const main = async function() {
 
         console.log(`Getting lyrics for ${links[i]}...`);
 
-        songSlides = await music.getLyrics(links[i], parseInt(type));
+        songSlides = await music.getLyrics(links[i], type, (type[type.length-1] == 'u' || type[type.length-1] == 'U'));
         allSlides.slides = allSlides.slides.concat(songSlides);
     }
 
