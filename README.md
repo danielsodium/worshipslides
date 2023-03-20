@@ -11,10 +11,10 @@ in the template to use.
 
 #### Example
 
-links.txt
+links.txt \
 3 reckless love cory asbury \
 1 promises maverick \
-5 this is amazing grace \
+5 this is amazing grace 
 
 This will output a pptx with the lyrics to reckless love on template slide number 3, promises on 
 template slide 1, and this is amazing grace in template slide 5. Note that larger template files
