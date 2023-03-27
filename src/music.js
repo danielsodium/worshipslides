@@ -4,6 +4,7 @@ var axios = require('axios');
 
 const { select } = require('xpath');
 const { DOMParser } = require('xmldom');
+const fs = require('fs');
 
 const SEARCH_URL = 'https://www.musixmatch.com/search/';
 
@@ -104,43 +105,95 @@ function parseLyrics(t) {
 
     for(let j = 0; j < nodes.length; j++) {
         if(typeof nodes[j].firstChild !== 'undefined' && typeof nodes[j].firstChild.data !== 'undefined') {
-            data.lyrics += (nodes[j].firstChild.data);
+            data.lyrics += (nodes[j].firstChild.data+"\n");
         }
     }
 
     return data;
 }
+function clearParenthesis(listed) {
+    for (var i = 0; i < listed.length; i++) {
+        if (listed[i].charAt(0) == '(' && listed[i].charAt(listed[i].length-1) == ')') {
+            listed.splice(i,1);
+            i--;
+        }
+        else {
+            listed[i] = listed[i].replace(/ *\([^)]*\) */g, "");
+        }
+    }
+    return listed;
+}
 
+function arrToString(data) {
+    var lyrics = "";
+    for (var i = 0; i < data.length; i++) {
+        lyrics += data[i];
+        if (i != data.length-1) lyrics += "\n";
+    }
+    return lyrics;
+}
 
 const getLyrics = async function(query, type, capitalize) {
     var a = await fetchURLs(query);
     var data = await fetchLyrics(a);
-    listed = data.lyrics;
-    listed = listed.split("\n");
-    listed = listed.filter(item => item);
-    listed.unshift(data.title+"\n"+data.artist);
+
+    listed = data.lyrics.split("\n");
+    listed = clearParenthesis(listed);
 
     if (capitalize) type.substring(0,type.length-1);
     type = parseInt(type);
 
     total = [];
-
-    // Adding multiple lyrics on one line if they are short
+    
     for (var i = 0; i < listed.length; i++) {
-
-        line = capitalize ? listed[i].toUpperCase().replace(",", "\n").trim() 
-                          : listed[i].replace(",", "\n").trim();
-        nextLine = capitalize ? listed[i+1].toUpperCase().replace(",", "\n").trim() 
-                              : listed[i+1].replace(",", "\n").trim();
-
-        if (i != 0 && i+1 < listed.length && listed[i+1].length < 30 && listed[i].length < 30) {
-            total.push({ "$slide" : type, "lyrics": line + "\n"+ nextLine });
-            i++;
-        }
-        else {
-            total.push({"$slide":type,"lyrics":line});
+        // Number of lines per verse
+        lines = 0;
+        max = true;
+        verse = [];
+        for (var j = i; j < listed.length; j++) {
+            if (listed[j] == "") {
+                // Ended Verse
+                if (lines != 0) {
+                    if (lines%3 == 0) {
+                        for (var k = 0; k < lines/3; k++) {
+                            total.push({"$slide":type,"lyrics":arrToString(verse.slice(k*3, (k+1)*3))});
+                        }
+                    }
+                    else if (lines%4 == 0) {
+                        if (max) {
+                            for (var k = 0; k < lines/4; k++) {
+                                total.push({"$slide":type,"lyrics":arrToString(verse.slice(k*4, (k+1)*4))});
+                            }
+                        } else {
+                            for (var k = 0; k < lines/2; k++) {
+                                total.push({"$slide":type,"lyrics":arrToString(verse.slice(k*2, (k+1)*2))});
+                            }
+                        }
+                    }
+                    // If not divisble just split into lines of 3
+                    else {
+                        if (lines < 3) total.push({"$slide":type,"lyrics":arrToString(verse)});
+                        else {
+                            var k;
+                            for (k = 0; k < lines/3; k++) { 
+                                total.push({"$slide":type,"lyrics":arrToString(verse.slice(k*3, (k+1)*3+1))});
+                            }
+                            total.push({"$slide":type,"lyrics":arrToString(verse.slice(k*3, lines))});
+                        }
+                    }
+                    i = j;
+                }
+                break;
+            } else {
+                lines++;
+                if (listed[j].length >= 30) max = false;
+                if (capitalize) verse.push(listed[j].toUpperCase());
+                else verse.push(listed[j]);
+            }
         }
     }
+    if (capitalize) total.unshift({"$slide":type,"lyrics":data.title.toUpperCase()});
+    else total.unshift({"$slide":type,"lyrics":data.title});
     return total;
 }
 

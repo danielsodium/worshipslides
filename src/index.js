@@ -3,7 +3,7 @@ const convert = require('./convert.js');
 const music = require('./music.js');
 
 const main = async function() {
-    links = await fs.readFile('./links.txt', { encoding: 'utf8' });
+    links = await fs.readFile('./input.txt', { encoding: 'utf8' });
     links = links.split("\n");
     allSlides = { "slides" : [] };
     
@@ -18,6 +18,7 @@ const main = async function() {
     }
 
     console.log("Finished scraping lyrics.");
+    //fs.writeFile("./output.json", JSON.stringify(allSlides));
     convert.saveFile(allSlides);
 
 }

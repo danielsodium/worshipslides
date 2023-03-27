@@ -6,13 +6,13 @@ insert them into a powerpoint from a template, ready to import to Google slides.
 ## Usage
 Add a template pptx file (called template.pptx) to the directory. This can be any number of 
 slides long but must have a text box with "{lyrics}" to replace with lyrics. Add a file called 
-"links.txt" with a list of songs. Each song should start with a number as to which slide
+"input.txt" with a list of songs. Each song should start with a number as to which slide
 in the template to use. You can also put 'u' behind the slide number to signal if it should
 be uppercase lyrics or not.
 
 #### Example
 
-links.txt \
+input.txt \
 3u reckless love cory asbury \
 1 promises maverick \
 5 this is amazing grace 
