@@ -2,17 +2,17 @@ const axios = require('axios');
 const fs = require('fs');
 
 function remove(str, start, end) {
-    return str.substr(0,start) + str.substr(end+1);
+    return str.substr(0, start) + str.substr(end + 1);
 }
 
 function clean(raw) {
 
     const startCut = '&quot;content&quot;:&quot;';
-    const endCut   = "&quot;,&quot;revision_id&";
+    const endCut = "&quot;,&quot;revision_id&";
 
     // cut down page to managable size
-    cut = raw.substring(raw.indexOf(startCut) + startCut.length, 
-                        raw.indexOf(endCut));
+    cut = raw.substring(raw.indexOf(startCut) + startCut.length,
+        raw.indexOf(endCut));
 
 
     // remove all chords
@@ -22,7 +22,7 @@ function clean(raw) {
 
     // remove all \r and \n
     while (cut.indexOf("\\") != -1) {
-        cut = remove(cut, cut.indexOf("\\"), cut.indexOf("\\")+1)
+        cut = remove(cut, cut.indexOf("\\"), cut.indexOf("\\") + 1)
     }
 
     lyrics = [];
@@ -31,22 +31,22 @@ function clean(raw) {
     infiniteCatch = 0;
     // If weird guitar ascii art exists delete it
     tag = cut.indexOf("[");
-    if (cut.substring(tag+1, tag + 4) == "tab") {
-        cut = cut.substring(cut.indexOf("]")+1, cut.length);
-        cut = cut.substring(cut.indexOf("[/tab]")+6, cut.length);
-    } 
+    if (cut.substring(tag + 1, tag + 4) == "tab") {
+        cut = cut.substring(cut.indexOf("]") + 1, cut.length);
+        cut = cut.substring(cut.indexOf("[/tab]") + 6, cut.length);
+    }
 
     // Actual parsing
     while (cut.length > 1) {
         tag = cut.indexOf("[");
-        if (cut.substring(tag+1, tag + 4) == "tab") {
-            cut = cut.substring(cut.indexOf("]")+1, cut.length);
-            lyrics[index].lines.push(cut.substring(0, cut.indexOf("[")).trim().replace("&rsquo;","'"));
-            cut = cut.substring(cut.indexOf("]")+1, cut.length);
-        } 
+        if (cut.substring(tag + 1, tag + 4) == "tab") {
+            cut = cut.substring(cut.indexOf("]") + 1, cut.length);
+            lyrics[index].lines.push(cut.substring(0, cut.indexOf("[")).trim().replace("&rsquo;", "'"));
+            cut = cut.substring(cut.indexOf("]") + 1, cut.length);
+        }
         else {
-            title = cut.substring(cut.indexOf("[")+1, cut.indexOf("]"));
-            cut = cut.substring(cut.indexOf("]")+1, cut.length);
+            title = cut.substring(cut.indexOf("[") + 1, cut.indexOf("]"));
+            cut = cut.substring(cut.indexOf("]") + 1, cut.length);
             lyrics[++index] = { "title": title, "lines": [] };
         }
 
@@ -86,7 +86,8 @@ function format(cleaned) {
     for (var i = 0; i < trimmed.length; i++) {
         lyrics += `\n[${trimmed[i].title.toUpperCase()}]\n`;
         for (var j = 0; j < trimmed[i].lines.length; j++) {
-            lyrics += `${trimmed[i].lines[j].toUpperCase()}\n`;
+            if (lyrics != "") lyrics += '\n';
+            lyrics += `${trimmed[i].lines[j].toUpperCase()}`;
         }
     }
 
@@ -99,20 +100,22 @@ function format(cleaned) {
 }
 
 
-function scrape() {
+async function scrape(url) {
+
     var config = {
         method: 'get',
-        url: 'https://tabs.ultimate-guitar.com/tab/elevation-worship/same-god-chords-4041202',
+        url: url,
     };
-
-    axios(config)
-        .then(function (response) {
-            cleaned = clean(response.data);
-            return format(cleaned);
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
+    return new Promise((resolve, reject) => {
+        axios(config)
+            .then(function (response) {
+                cleaned = clean(response.data);
+                resolve(format(cleaned));
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    })
 }
 
 module.exports = scrape;

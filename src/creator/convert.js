@@ -60,6 +60,7 @@ function saveFile(jsoned) {
 }
 
 function convert(num) {
+    num = parseInt(num);
     order = fs.readFileSync("./ORDER.txt", 'utf8');
     ref = fs.readFileSync("./REFERENCE.txt", 'utf8');
     order = order.split("\n");
