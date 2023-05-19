@@ -41,7 +41,7 @@ function clean(raw) {
         tag = cut.indexOf("[");
         if (cut.substring(tag + 1, tag + 4) == "tab") {
             cut = cut.substring(cut.indexOf("]") + 1, cut.length);
-            lyrics[index].lines.push(cut.substring(0, cut.indexOf("[")).trim().replace("&rsquo;", "'"));
+            lyrics[index].lines.push(cut.substring(0, cut.indexOf("[")).trim().replaceAll("&rsquo;", "'").replaceAll("&#039;", "'"));
             cut = cut.substring(cut.indexOf("]") + 1, cut.length);
         }
         else {
@@ -84,9 +84,10 @@ function format(cleaned) {
         order += `${original[i].toUpperCase()}\n`;
     }
     for (var i = 0; i < trimmed.length; i++) {
-        lyrics += `\n[${trimmed[i].title.toUpperCase()}]\n`;
+        lyrics += `\n\n[${trimmed[i].title.toUpperCase()}]\n`;
         for (var j = 0; j < trimmed[i].lines.length; j++) {
-            if (lyrics != "") lyrics += '\n';
+            //if (lyrics != "") 
+            if (j != 0) lyrics += '\n';
             lyrics += `${trimmed[i].lines[j].toUpperCase()}`;
         }
     }

@@ -52,7 +52,8 @@ function saveFile(jsoned) {
     axios(config)
         .then(function (response) {
             console.log("Downloading file...");
-            downloadFile('https://docxapi.javascript-ninja.fr/api/v1/last', "./output.pptx");
+            downloadFile('https://docxapi.javascript-ninja.fr/api/v1/last', 
+                        `./${jsoned.slides[0].lyrics.replace(" ", "_").toLowerCase()}.pptx`);
         })
         .catch(function (error) {
             console.log(error);
@@ -83,7 +84,10 @@ function convert(num) {
             table[lastTitle] = [{"$slide":num,"lyrics":""}];
             slideIndex = 0;
         } else {
-            table[lastTitle][slideIndex].lyrics += `${line}\n`;
+
+            if (table[lastTitle][slideIndex].lyrics != "") 
+                table[lastTitle][slideIndex].lyrics += "\n"
+            table[lastTitle][slideIndex].lyrics += `${line}`;
         }
     }
 
