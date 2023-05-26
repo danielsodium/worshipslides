@@ -1,7 +1,5 @@
 node_modules
-output.pptx
-template.pptx
+dist
+build
+yarn.lock
 package-lock.json
-input.txt
-ORDER.txt
-REFERENCE.TXT
