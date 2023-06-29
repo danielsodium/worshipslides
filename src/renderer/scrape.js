@@ -128,10 +128,14 @@ function format(cleaned) {
 }
 
 
-async function scrape(url) {
+async function scrape(url, cookie) {
+    
     var config = {
         method: 'get',
         url: url,
+        headers: {
+            'Cookie': cookie
+        }
     };
     console.log(url)
     return new Promise((resolve, reject) => {

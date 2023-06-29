@@ -13,7 +13,7 @@ const createWindow = () => {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
-            // preload: path.join(__dirname, 'preload.js')
+            preload: path.join(__dirname, 'preload.js')
         }
     })
 
@@ -36,6 +36,42 @@ ipcMain.handle('msg', async (event, title, msg) => {
     });
     return;
 })
+
+// Create settings file if not created
+ipcMain.handle('create-data', async (event) => {
+    var path = app.getPath('userData')+"/AppStorage"
+    if (!fs.existsSync(path)){
+        fs.mkdirSync(path);
+        data = {cookies: ""};
+        fs.appendFile(path+"/data.json", JSON.stringify(data), function (err) {``
+            if (err) throw err;
+            console.log('Saved!');
+        });
+    } else {
+        
+    }
+})
+
+ipcMain.handle('read-data', async (event) => {
+    var path = app.getPath('userData')+"/AppStorage"
+    if (fs.existsSync(path)){
+        data = await fs.promises.readFile(`${path}/data.json`, 'utf8');
+        data = JSON.parse(data);
+        return data;
+    }
+})
+
+// Writing settings
+ipcMain.handle('write-data', async (event, data) => {
+    data = {cookies: data};
+    var path = app.getPath('userData')+"/AppStorage"
+    if (fs.existsSync(path)){
+        fs.writeFile(path+"/data.json", JSON.stringify(data), err => {
+            console.log("Saved!")
+        })
+    }
+})
+
 
 app.whenReady().then(() => {
     createWindow();

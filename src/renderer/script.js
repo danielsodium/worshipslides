@@ -14,6 +14,8 @@ edited = {
     lyrics : '"',
     file: ""
 }
+settings = {};
+
 ugtURL = "";
 
 // why does javascript not have enums
@@ -85,6 +87,10 @@ async function changeState(newState) {
         case states.SETTINGS:
             $("#main").empty();
             $("#main").load("settings.html", function() {
+                document.getElementById("cookie").value = settings.cookies;
+                document.getElementById("cookie").addEventListener("change", (e) => { 
+                    ipcRenderer.invoke("write-data", e.target.value) 
+                });
                 document.getElementById("home").addEventListener("click", () => { changeState(states.HOME) });
             });
             break;
@@ -113,7 +119,7 @@ async function changeState(newState) {
             if (edited.order == "") {
                 console.log(ugtURL)
                 if (checkURL(ugtURL)) {
-                    const data = await scrape(ugtURL);
+                    const data = await scrape(ugtURL, settings.cookies);
                     await addProgressBar();
                     moveProgressBar(25);
                     $("#steps").empty();
@@ -122,6 +128,12 @@ async function changeState(newState) {
                         document.getElementById("lyrics").value = data.lyrics;
                         document.getElementById("prev").addEventListener("click", () => { changeState(states.LINK) });
                         document.getElementById("next").addEventListener("click", () => { changeState(states.SLIDE) });
+                    
+                        // Capitalize button
+                        document.getElementById("capitalize").addEventListener("click", () => {
+                            document.getElementById("titles").value = document.getElementById("titles").value.toUpperCase();
+                            document.getElementById("lyrics").value = document.getElementById("lyrics").value.toUpperCase();
+                        });
                     });
                 } else {
                     // TODO: Make some kind of notification that it didn't work
@@ -202,5 +214,8 @@ async function changeState(newState) {
 
 // Load main content
 window.onload=function(){
+    ipcRenderer.invoke("read-data").then(result => {
+        settings = result;
+    })
     changeState(states.HOME);
 }
