@@ -13,6 +13,9 @@
   "build": {
     "appId": "com.electron.slides"
   },
+  "commands": {
+    "run" : "npm start"
+  },
   "dependencies": {
     "@electron/remote": "^2.0.9",
     "axios": "^1.3.4",

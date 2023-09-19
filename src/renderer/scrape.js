@@ -22,6 +22,9 @@ function searchFields(array, field, target) {
 }
 
 function clean(raw) {
+    fs.writeFileSync('./raw.txt', raw);
+   
+    title = raw.substring(raw.indexOf("<title>"), raw.indexOf("by"));
 
     const startCut = '&quot;content&quot;:&quot;';
     const endCut = "&quot;,&quot;revision_id&";
@@ -117,10 +120,18 @@ function format(cleaned) {
     }
     for (var i = 0; i < trimmed.length; i++) {
         lyrics += `\n\n[${trimmed[i].title.toUpperCase()}]\n`;
+        
+        var checked = 0;
+
         for (var j = 0; j < trimmed[i].lines.length; j++) {
             //if (lyrics != "") 
             if (j != 0) lyrics += '\n';
             lyrics += `${trimmed[i].lines[j].toUpperCase()}`;
+            checked++;
+            if (checked > 1) {
+                checked = 0;
+                lyrics += '\n';
+            }
         }
     }
 

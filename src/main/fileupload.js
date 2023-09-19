@@ -23,7 +23,7 @@ async function uploader(jsoned, path) {
         axios(config)
             .then(async function (response) {
                 await downloadFile('https://docxapi.javascript-ninja.fr/api/v1/last',
-                    `./${jsoned.slides[0].lyrics.replace(" ", "_").toLowerCase()}.pptx`);
+                    `./slides/${jsoned.slides[0].lyrics.replaceAll(" ", "_").toLowerCase()}.pptx`);
 
                 resolve();
             })
